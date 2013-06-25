@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+#include <ruby.h>
 
 extern int TTYPE_STOP;
 extern int TTYPE_BOOL;

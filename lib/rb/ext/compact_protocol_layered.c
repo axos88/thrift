@@ -23,28 +23,13 @@
 #include <constants.h>
 #include <struct.h>
 #include <bytes.h>
+#include "struct.h"
+#include "fastcall.h"
+#include "ruby_ptr.h"
 
 #define DEBUG 0
 
-#if SIZEOF_VOIDP <= SIZEOF_LONG
-  #define NUM2PTR(x) NUM2ULONG(x)
-  #define PTR2NUM(x) ULONG2NUM((unsigned long)x)
-#elif SIZEOF_VOIDP <= SIZEOF_LONG_LONG
-  #define NUM2PTR(x) NUM2ULL(x)
-  #define PTR2NUM(x) ULL2NUM((unsigned long long)x)
-#else
- #error "Pointer size too large, could not determine a good way to convert a C pointer to a Ruby object"
-#endif
-
-
-
-#if DEBUG
-  #define DEBUG_FUNCTION_ENTRY() printf("Layered %s\n", __FUNCTION__);
-  #define DEBUG_FUNCTION_PROGRES() printf("%s, %s:%d\n", __FILE__, __FUNCTION__, __LINE__);
-#else
-  #define DEBUG_FUNCTION_ENTRY()
-  #define DEBUG_FUNCTION_PROGRES() 
-#endif
+#include "debug.h"
 
 
 #include "protocol_transfer.h"
@@ -63,6 +48,8 @@ static int VERSION_MASK;
 static int TYPE_MASK;
 static int TYPE_SHIFT_AMOUNT;
 static int PROTOCOL_ID;
+
+static protocol_method_table method_table;
 
 #define CTYPE_BOOLEAN_TRUE 0x01
 #define CTYPE_BOOLEAN_FALSE 0x02
@@ -304,24 +291,22 @@ static VALUE rb_write_struct_end(VALUE self) {
 
   return Qnil;
 }
-/* 
 
-static VALUE rb_thrift_compact_proto_write_field_end(VALUE self) {
+static VALUE rb_write_field_end(VALUE self) {
   return Qnil;
 }
 
-static VALUE rb_thrift_compact_proto_write_map_end(VALUE self) {
+static VALUE rb_write_map_end(VALUE self) {
   return Qnil;
 }
 
-static VALUE rb_thrift_compact_proto_write_list_end(VALUE self) {
+static VALUE rb_write_list_end(VALUE self) {
   return Qnil;
 }
 
-static VALUE rb_thrift_compact_proto_write_set_end(VALUE self) {
+static VALUE rb_write_set_end(VALUE self) {
   return Qnil;
 }
-*/
 
 static VALUE rb_write_message_begin(VALUE self, VALUE name, VALUE type, VALUE seqid) {
   DEBUG_FUNCTION_ENTRY();
@@ -611,33 +596,33 @@ static VALUE rb_read_struct_end(VALUE self) {
 
 
 /*
-static VALUE rb_thrift_compact_proto_read_message_end(VALUE self) {
+static VALUE rb_read_message_end(VALUE self) {
+  return Qnil;
+}*/
+
+static VALUE rb_read_field_end(VALUE self) {
   return Qnil;
 }
 
-static VALUE rb_thrift_compact_proto_read_field_end(VALUE self) {
+static VALUE rb_read_map_end(VALUE self) {
   return Qnil;
 }
 
-static VALUE rb_thrift_compact_proto_read_map_end(VALUE self) {
+static VALUE rb_read_list_end(VALUE self) {
   return Qnil;
 }
 
-static VALUE rb_thrift_compact_proto_read_list_end(VALUE self) {
+static VALUE rb_read_set_end(VALUE self) {
   return Qnil;
 }
 
-static VALUE rb_thrift_compact_proto_read_set_end(VALUE self) {
-  return Qnil;
-}
-*/
 static VALUE rb_read_message_begin(VALUE self) {
   DEBUG_FUNCTION_ENTRY()
   compact_data* cd = get_cdata(self);   
 
   int8_t protocol_id = transfer_read_byte(cd);
 
-  DEBUG_FUNCTION_PROGRES();
+  DEBUG_FUNCTION_PROGRESS();
 
   if (protocol_id != PROTOCOL_ID) {
     char buf[100];
@@ -740,7 +725,7 @@ static VALUE rb_read_bool(VALUE self) {
 
 
 
-static VALUE rb_thrift_compact_proto_read_byte(VALUE self) {
+static VALUE rb_read_byte(VALUE self) {
   compact_data* cd = get_cdata(self);   
   return INT2FIX(transfer_read_byte(cd));
 }
@@ -849,8 +834,56 @@ static VALUE rb_initialize(VALUE self, VALUE transport)
   return self;
 } 
 
+VALUE rb_get_method_table(VALUE self)
+{
+  return PTR2NUM(&method_table);
+}
+
+
+void Init_protocol_method_table()
+{
+  fastcall_init_c(method_table.write_bool, (rfunc)rb_write_bool);
+  fastcall_init_c(method_table.write_byte, (rfunc)rb_write_byte);
+  fastcall_init_c(method_table.write_double, (rfunc)rb_write_double);
+  fastcall_init_c(method_table.write_i16, (rfunc)rb_write_i16);
+  fastcall_init_c(method_table.write_i32, (rfunc)rb_write_i32);
+  fastcall_init_c(method_table.write_i64, (rfunc)rb_write_i64);
+  fastcall_init_c(method_table.write_set_begin, (rfunc)rb_write_set_begin);
+  fastcall_init_c(method_table.write_set_end, (rfunc)rb_write_set_end);
+  fastcall_init_c(method_table.write_map_begin, (rfunc)rb_write_map_begin);
+  fastcall_init_c(method_table.write_map_end, (rfunc)rb_write_map_end);
+  fastcall_init_c(method_table.write_list_begin, (rfunc)rb_write_list_begin);
+  fastcall_init_c(method_table.write_list_end, (rfunc)rb_write_list_end);
+  fastcall_init_c(method_table.write_field_begin, (rfunc)rb_write_field_begin);
+  fastcall_init_c(method_table.write_field_end, (rfunc)rb_write_field_end);
+  fastcall_init_c(method_table.write_field_stop, (rfunc)rb_write_field_stop);
+  fastcall_init_c(method_table.write_struct_begin, (rfunc)rb_write_struct_begin);
+  fastcall_init_c(method_table.write_struct_end, (rfunc)rb_write_struct_end);
+  fastcall_init_c(method_table.write_string, (rfunc)rb_write_string);
+
+  fastcall_init_c(method_table.read_bool, (rfunc)rb_read_bool);
+  fastcall_init_c(method_table.read_byte, (rfunc)rb_read_byte);
+  fastcall_init_c(method_table.read_double, (rfunc)rb_read_double);
+  fastcall_init_c(method_table.read_i16, (rfunc)rb_read_i16);
+  fastcall_init_c(method_table.read_i32, (rfunc)rb_read_i32);
+  fastcall_init_c(method_table.read_i64, (rfunc)rb_read_i64);
+  fastcall_init_c(method_table.read_set_begin, (rfunc)rb_read_set_begin);
+  fastcall_init_c(method_table.read_set_end, (rfunc)rb_read_set_end);
+  fastcall_init_c(method_table.read_map_begin, (rfunc)rb_read_map_begin);
+  fastcall_init_c(method_table.read_map_end, (rfunc)rb_read_map_end);
+  fastcall_init_c(method_table.read_list_begin, (rfunc)rb_read_list_begin);
+  fastcall_init_c(method_table.read_list_end, (rfunc)rb_read_list_end);
+  fastcall_init_c(method_table.read_field_begin, (rfunc)rb_read_field_begin);
+  fastcall_init_c(method_table.read_field_end, (rfunc)rb_read_field_end);
+  fastcall_init_c(method_table.read_struct_begin, (rfunc)rb_read_struct_begin);
+  fastcall_init_c(method_table.read_struct_end, (rfunc)rb_read_struct_end);
+  fastcall_init_c(method_table.read_string, (rfunc)rb_read_string);
+}  
+
 
 void Init_layered_compact_protocol() {
+
+  Init_protocol_method_table();
 
   VALUE thrift_compact_protocol_class = rb_const_get(thrift_module, rb_intern("CompactProtocol"));
 
@@ -901,7 +934,7 @@ void Init_layered_compact_protocol() {
   rb_define_method(bpa_class, "read_map_begin",      rb_read_map_begin, 0);
   rb_define_method(bpa_class, "read_list_begin",     rb_read_list_begin, 0);
   rb_define_method(bpa_class, "read_set_begin",      rb_read_set_begin, 0);
-  rb_define_method(bpa_class, "read_byte",           rb_thrift_compact_proto_read_byte, 0);
+  rb_define_method(bpa_class, "read_byte",           rb_read_byte, 0);
   rb_define_method(bpa_class, "read_bool",           rb_read_bool, 0);
   rb_define_method(bpa_class, "read_i16",            rb_read_i16, 0);
   rb_define_method(bpa_class, "read_i32",            rb_read_i32, 0);
@@ -919,5 +952,7 @@ void Init_layered_compact_protocol() {
   // rb_define_method(dummy_class, "read_map_end",       rb_thrift_compact_proto_read_map_end, 0);
   // rb_define_method(dummy_class, "read_list_end",      rb_thrift_compact_proto_read_list_end, 0);
   // rb_define_method(dummy_class, "read_set_end",       rb_thrift_compact_proto_read_set_end, 0);
+
+  rb_define_method(bpa_class, "get_protocol_method_table", rb_get_method_table, 0);
 
 }

@@ -215,6 +215,7 @@ describe 'Struct' do
       struct = SpecNamespace::Foo.new
       struct.words = nil
       struct.complex = {5 => {"foo" => 1.23}}
+
       struct.write(prot)
     end
 

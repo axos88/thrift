@@ -28,6 +28,7 @@
 #include <compact_protocol_layered.h>
 #include <compact_protocol_layered_buffered.h>
 #include <compact_protocol_layered_bypass.h>
+#include "struct_metadata.h"
 
 // cached classes/modules
 VALUE rb_cSet;
@@ -202,4 +203,5 @@ void Init_thrift_native() {
   Init_layered_bypass_compact_protocol();  
   Init_memory_buffer();
   Init_fast_memory_buffer();
+  Init_struct_metadata();
 }
