@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    thrift (0.9.0.5.wp)
+    thrift (0.9.0.6.wp)
 
 GEM
   remote: http://rubygems.org/
