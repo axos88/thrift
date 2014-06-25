@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = 'thrift'
-  s.version     = '0.9.0.5.wp'
+  s.version     = '0.9.0.6.wp'
   s.authors     = ['Thrift Developers']
   s.email       = ['dev@thrift.apache.org']
   s.homepage    = 'http://thrift.apache.org'
@@ -31,7 +31,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rack", "~> 1.5.2"
   s.add_development_dependency "rack-test", "~> 0.6.2"
   s.add_development_dependency "thin", "~> 1.5.0"
-  s.add_development_dependency "bundler", "~> 1.3.1"
+  s.add_development_dependency "bundler", "~> 1.3"
   s.add_development_dependency 'rake'
 end
 
