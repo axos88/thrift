@@ -29,11 +29,15 @@ static VALUE get_name_id(char* field_name) {
   return v;
 }
 
-
+// returns NULL if unknown metadata id which likely means serializer has newer schema with optional fields
+// which deserializer doesn't know
 field_metadata* getFieldMetadataByID(struct_metadata* md, int id)
 {
   DEBUG_FUNCTION_ENTRY();
-  if (md->maxid < id) rb_raise(rb_eRuntimeError, "Unknown entry %d for metadata object. maximum ID is %d", id, md->maxid);
+  if (md->maxid < id) {
+    DEBUG_FUNCTION_EXIT();
+    return NULL;
+  }
   if (md->index[id] == NULL) rb_raise(rb_eRuntimeError, "Entry %d for metadata object not present.", id);
 
   DEBUG_FUNCTION_EXIT();
