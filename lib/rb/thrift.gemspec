@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = 'thrift'
-  s.version     = '0.9.0.7.wp'
+  s.version     = '0.9.0.8.wp'
   s.authors     = ['Thrift Developers','Ákos Vandra','Devin Ben-Hur']
   s.email       = ['dev@thrift.apache.org','avandra@whitepages.com','dbenhur@whitepages.com']
   s.homepage    = 'http://thrift.apache.org'
