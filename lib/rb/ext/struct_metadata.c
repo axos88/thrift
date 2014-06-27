@@ -33,15 +33,15 @@ static VALUE get_name_id(char* field_name) {
 // which deserializer doesn't know
 field_metadata* getFieldMetadataByID(struct_metadata* md, int id)
 {
+  field_metadata* fmd = NULL;
+
   DEBUG_FUNCTION_ENTRY();
-  if (md->maxid < id) {
-    DEBUG_FUNCTION_EXIT();
-    return NULL;
+  if (id <= md->maxid) {
+    fmd = md->index[id];
   }
-  if (md->index[id] == NULL) rb_raise(rb_eRuntimeError, "Entry %d for metadata object not present.", id);
 
   DEBUG_FUNCTION_EXIT();
-  return md->index[id];
+  return fmd;
 }
 
 // SLOOOOOOOW!!!
