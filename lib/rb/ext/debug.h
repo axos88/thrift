@@ -23,8 +23,6 @@ extern int debug_level;
 #define ERRORF(fmt, ...) DEBUG_MSG(LVL_ERROR, fmt, ##__VA_ARGS__)
 #define CRITICALF(fmt, ...) DEBUG_MSG(LVL_CRITICAL, fmt, ##__VA_ARGS__)
 
-#define DEBUGS(s) DEBUGF("%s%s\n", separator, s)
-
 #define DEBUG_FUNCTION_ENTRY() DEBUGF("->%s:%s", __FILE__, __FUNCTION__), curdepth += DEPTH_INCREMENT, maxdepth = curdepth > maxdepth ? curdepth : maxdepth
 #define DEBUG_FUNCTION_EXIT()  curdepth -= DEPTH_INCREMENT, DEBUGF("%s:%s", __FILE__, __FUNCTION__)
 #define DEBUG_FUNCTION_PROGRESS() DEBUGF("%s, %s:%d", __FILE__, __FUNCTION__, __LINE__)
