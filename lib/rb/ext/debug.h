@@ -14,7 +14,7 @@ extern int debug_level;
 #define LVL_LOG 4
 #define LVL_DEBUG 5
 
-#define DEBUG_MSG(lvl, fmt, ...) ((debug_level >= lvl) ? printf("%*s", curdepth, ''), printf(fmt, ##__VA_ARGS__), printf("\n") : 0)
+#define DEBUG_MSG(lvl, fmt, ...) ((debug_level >= lvl) ? printf("%*s", curdepth, ""), printf(fmt, ##__VA_ARGS__), printf("\n") : 0)
 
 #define DEBUGF(fmt, ...) DEBUG_MSG(LVL_DEBUG, fmt, ##__VA_ARGS__)
 #define LOGF(fmt, ...) DEBUG_MSG(LVL_LOG, fmt, ##__VA_ARGS__)
