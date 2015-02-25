@@ -3,8 +3,9 @@
 
 #define DEPTH_INCREMENT 2
 
-extern char separator[];
 extern int curdepth;
+extern int maxdepth;
+extern int debug_level;
 
 #define LVL_CRITICAL 0
 #define LVL_ERROR 1
@@ -13,7 +14,7 @@ extern int curdepth;
 #define LVL_LOG 4
 #define LVL_DEBUG 5
 
-#define DEBUG_MSG(lvl, fmt, ...) ((debug_level >= lvl) ? printf("%s", separator), printf(fmt, ##__VA_ARGS__), printf("\n") : 0)
+#define DEBUG_MSG(lvl, fmt, ...) ((debug_level >= lvl) ? printf("%*s", curdepth, ""), printf(fmt, ##__VA_ARGS__), printf("\n") : 0)
 
 #define DEBUGF(fmt, ...) DEBUG_MSG(LVL_DEBUG, fmt, ##__VA_ARGS__)
 #define LOGF(fmt, ...) DEBUG_MSG(LVL_LOG, fmt, ##__VA_ARGS__)
@@ -22,13 +23,9 @@ extern int curdepth;
 #define ERRORF(fmt, ...) DEBUG_MSG(LVL_ERROR, fmt, ##__VA_ARGS__)
 #define CRITICALF(fmt, ...) DEBUG_MSG(LVL_CRITICAL, fmt, ##__VA_ARGS__)
 
-#define DEBUGS(s) DEBUGF("%s%s\n", separator, s)
-
-#define DEBUG_FUNCTION_ENTRY() DEBUGF("->%s:%s", __FILE__, __FUNCTION__), separator[curdepth] = ' ', curdepth+=DEPTH_INCREMENT, separator[curdepth] = 0
-#define DEBUG_FUNCTION_EXIT()  separator[curdepth] = ' ', curdepth-=DEPTH_INCREMENT, separator[curdepth] = 0, DEBUGF("<-%s:%s", __FILE__, __FUNCTION__)
+#define DEBUG_FUNCTION_ENTRY() DEBUGF("->%s:%s", __FILE__, __FUNCTION__), curdepth += DEPTH_INCREMENT, maxdepth = curdepth > maxdepth ? curdepth : maxdepth
+#define DEBUG_FUNCTION_EXIT()  curdepth -= DEPTH_INCREMENT, DEBUGF("%s:%s", __FILE__, __FUNCTION__)
 #define DEBUG_FUNCTION_PROGRESS() DEBUGF("%s, %s:%d", __FILE__, __FUNCTION__, __LINE__)
-
-extern int debug_level;
 
 void Init_debug();
 
