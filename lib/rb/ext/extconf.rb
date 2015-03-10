@@ -21,8 +21,14 @@ if defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
   File.open('Makefile', 'w'){|f| f.puts "all:\n\ninstall:\n" }
 else
   require 'mkmf'
+  begin
+    require 'rbconfig'
+    RB_CFLAGS = RbConfig::CONFIG['CFLAGS']
+  rescue LoadError
+    RB_CFLAGS = Config::CONFIG['CFLAGS']
+  end
 
-  $ARCH_FLAGS = Config::CONFIG['CFLAGS'].scan( /(-arch )(\S+)/ ).map{|x,y| x + y + ' ' }.join('')
+  $ARCH_FLAGS = RB_CFLAGS.scan( /(-arch )(\S+)/ ).map{|x,y| x + y + ' ' }.join('')
 
   $CFLAGS = "-fsigned-char -g -O2 -Wall -Werror " + $ARCH_FLAGS
 
