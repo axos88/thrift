@@ -23,11 +23,12 @@ else
   require 'mkmf'
   begin
     require 'rbconfig'
-    $ARCH_FLAGS = RbConfig::CONFIG['CFLAGS'].scan( /(-arch )(\S+)/ ).map{|x,y| x + y + ' ' }.join('')
+    RB_CFLAGS = RbConfig::CONFIG['CFLAGS']
   rescue LoadError
-    $ARCH_FLAGS = Config::CONFIG['CFLAGS'].scan( /(-arch )(\S+)/ ).map{|x,y| x + y + ' ' }.join('')
+    RB_CFLAGS = Config::CONFIG['CFLAGS']
   end
 
+  $ARCH_FLAGS = RB_CFLAGS.scan( /(-arch )(\S+)/ ).map{|x,y| x + y + ' ' }.join('')
 
   $CFLAGS = "-fsigned-char -g -O2 -Wall -Werror " + $ARCH_FLAGS
 
